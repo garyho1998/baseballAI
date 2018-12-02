@@ -1,0 +1,51 @@
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+import seaborn as sns
+import time
+from numpy import NaN
+from pandas.tests.frame.test_validate import dataframe
+from unittest.mock import inplace
+from matplotlib.testing.compare import converter
+
+start = time.time()
+
+def convert_nameToID(cell):                  
+    if cell ==" " or cell =="" or cell=="NaN" or cell==NaN:
+        return NaN
+    else:
+        if cell in dict_df.index:
+            if type(dict_df.loc[cell]['playerID']) is str:
+                return dict_df.loc[cell]['playerID']
+            else:       
+                return dict_df.loc[cell]['playerID'].iloc[-1]
+        else: 
+            print (cell + " Not found")
+            return NaN
+        
+folderpath = "//OAFILE06/gcyho$/Desktop/AIData/Master.xlsx"
+master_df = pd.read_excel(folderpath,na_values=[""])
+
+dict_df = master_df[['playerID','nameFirst','nameLast','nameGiven']]
+pd.options.mode.chained_assignment = None
+dict_df['name'] = dict_df[['nameFirst', 'nameLast']].apply(lambda x: ' '.join(x.map(str)), axis=1)
+dict_df['name'] = dict_df['name'].apply(lambda x: str(x))
+dict_df.set_index('name', inplace=True)
+
+folderpath = "//OAFILE06/gcyho$/Desktop/AIData/2017game"
+
+temp_dfs = []
+for i in range(1,17):
+    temp_dfs.append( pd.read_excel(folderpath + str(i) + ".xlsx") )
+game_df = pd.concat(temp_dfs)
+
+converter_dict = {'pitcher1':convert_nameToID, 'pitcher2':convert_nameToID}
+for i in range(1,13):
+    converter_dict['batter'+ str(i)]=convert_nameToID
+game_df = game_df.apply(converter_dict)
+
+print((len(game_df) - game_df.count())/len(game_df))
+
+writer = pd.ExcelWriter("//OAFILE06/gcyho$/Desktop/AIData/level2/2017game.xlsx")
+game_df.to_excel(writer,'Sheet1')
+writer.save()
