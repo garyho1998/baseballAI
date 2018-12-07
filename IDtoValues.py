@@ -8,6 +8,7 @@ from numpy import NaN
 from pandas.tests.frame.test_validate import dataframe
 from unittest.mock import inplace
 from matplotlib.testing.compare import converter
+from path_definition import ROOT_DIR
 
 start = time.time()
 
@@ -79,21 +80,20 @@ def convert_IDToPitching(cell):
                 return pitcher_dict[cell]      
 pd.options.mode.chained_assignment = None   
 year = 2016     
-folderpath = "//OAFILE06/gcyho$/Desktop/AIData/Batting.csv"
+folderpath = ROOT_DIR + "data/Batting.csv"
 batting_df = pd.read_csv(folderpath,na_values=[""])
 batting_df = batting_df[['playerID','yearID','AB','H']]
 batting_df['HitRate'] = batting_df['H'] / batting_df['AB']
 batting_df['HitRate'].fillna(0, inplace=True)
 batting_HitRate_Mean = batting_df['HitRate'].mean()
-batting_df['HitRate'] = batting_df['HitRate'].apply(lambda x: x - batting_HitRate_Mean)
+batting_df['HitRate'] = batting_df['HitRate'].apply(lambda x: x/batting_df['HitRate'].max())
 
-folderpath = "//OAFILE06/gcyho$/Desktop/AIData/Pitching.csv"
+folderpath = ROOT_DIR + "data/Pitching.csv"
 pitching_df = pd.read_csv(folderpath,na_values=[""])
 pitching_df = pitching_df[['playerID','yearID','ERA']]
 pitching_df['ERA'] = pitching_df['ERA'].apply(lambda x: x/pitching_df['ERA'].max())
 pitching_ERA_Mean = pitching_df['ERA'].mean()
-pitching_df['ERA'] = pitching_df['ERA'].apply(lambda x: x - pitching_ERA_Mean)
-folderpath = "//OAFILE06/gcyho$/Desktop/AIData/level2/" + str(year) +"game.xlsx"
+folderpath = ROOT_DIR + "level2/" + str(year) +"game.xlsx"
 game_df = pd.read_excel(folderpath,na_values=[""])
 
 pitcher_dict = {}
@@ -113,13 +113,13 @@ game_df.iloc[:,3:17] = game_df.apply(converter_dict)
 
 NotFoundList = f5(NotFoundList)
 NotFoundList.sort(key=None, reverse=False)
-f = open("//OAFILE06/gcyho$/Desktop/AIData/NameToIDLog.txt", "w")
+f = open(ROOT_DIR + "IDToValueLog.txt", "w")
 print("len of not found list", end=' ')
 print(len(NotFoundList))
 f.write(str(NotFoundList))
 print(game_df.describe())
 
-writer = pd.ExcelWriter("//OAFILE06/gcyho$/Desktop/AIData/level3/" + str(year) +"game.xlsx")  
+writer = pd.ExcelWriter(ROOT_DIR + "level3/" + str(year) +"game2.xlsx")  
 game_df.to_excel(writer,'Sheet1')
 writer.save()
 
