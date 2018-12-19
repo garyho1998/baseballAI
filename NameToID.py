@@ -86,7 +86,7 @@ NotFoundList_pitcher.sort(key=None, reverse=False)
 f2 = open(ROOT_DIR + "NotFoundList_batter.txt", "w")
 f2.write(str(NotFoundList_batter))
 
-writer = pd.ExcelWriter(ROOT_DIR + "level2/2016game2.xlsx")
+writer = pd.ExcelWriter(ROOT_DIR + "level2/2016game.xlsx")
 game_df.to_excel(writer,'Sheet1')
 writer.save()
 
