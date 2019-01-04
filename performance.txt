@@ -1,0 +1,11 @@
+gd-dnn: 4661
+gd-linear: 4710
+ftrl-linear: 4710
+ftrl-dnn: 4611
+adam-dnn: 5335, 4939
+adam-linear: 5101, 5170
+pa-linear: 4706
+ada-linear: 4602
+ada-dnn: 4449
+adag-dnn: 5059
+adag-linear: 4828
