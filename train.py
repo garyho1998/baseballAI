@@ -17,29 +17,45 @@ from tensorflow.contrib import predictor
 
 def preprocess_features(game_df):
   selected_features = game_df[
-    ["batter1",
-     "batter2",
-     "batter3",
-     "batter4",
-     "batter5",
-     "batter6",
-     "batter7",
-     "batter8",
-     "batter9",
-     "batter10",
-     "batter11",
-     "batter12",
-     "num_of_batter",
-     "num_of_pitcher"
-     ]]
-  selected_features['pitcher1'] = (game_df['pitcher1'] * 10)
-  selected_features['pitcher2'] = (game_df['pitcher2'] * 10)
-  processed_features = selected_features.copy()
+    [
+#     "batter1_HitRate",
+#     "batter2_HitRate",
+    "batter3_HitRate",
+    "batter4_HitRate",
+#     "batter5_HitRate",
+#     "batter6_HitRate",
+#     "batter7_HitRate",
+    "batter8_HitRate",
+    "batter9_HitRate",
+#     "batter10_HitRate",
+#     "batter11_HitRate",
+#     "batter12_HitRate",
+#     "batter1_Game",
+#     "batter2_Game",
+    "batter3_Game",
+    "batter4_Game",
+#     "batter5_Game",
+#     "batter6_Game",
+#     "batter7_Game",
+    "batter8_Game",
+    "batter9_Game",
+#     "batter10_Game",
+#     "batter11_Game",
+#     "batter12_Game",
+#     "num_of_batter",
+#     "num_of_pitcher",
+    'pitcher1_ERA',
+    'pitcher2_ERA',
+    'pitcher1_Game',
+    'pitcher2_Game'         
+  ]]
+  processed_features = selected_features.copy()  
   return processed_features
+
 def preprocess_targets(game_df):
   output_targets = pd.DataFrame()
   # Scale the target to be in units of thousands of dollars.
-  output_targets["score"] = (game_df["score"] / 100)
+  output_targets["score"] = (game_df["score"])
   return output_targets
 
 def construct_feature_columns(input_features):
@@ -71,9 +87,8 @@ def train_model(
 
   periods = 10
   steps_per_period = steps / periods
-
   # Create a linear regressor object.
-  my_optimizer = tf.train.GradientDescentOptimizer(learning_rate=learning_rate)
+  my_optimizer = tf.train.AdamOptimizer(learning_rate=learning_rate)
   my_optimizer = tf.contrib.estimator.clip_gradients_by_norm(my_optimizer, 5.0)
   dnn_regressor = tf.estimator.DNNRegressor(
       feature_columns=construct_feature_columns(training_examples),
@@ -149,10 +164,10 @@ validation_examples = preprocess_features(game_df.tail(2000))
 validation_targets = preprocess_targets(game_df.tail(2000))
 
 dnn_regressor = train_model(
-      learning_rate=0.001,
-      steps=12000,
-      batch_size=5,
-      hidden_units=[20,20,20],
+      learning_rate=0.000005,
+      steps=25000,
+      batch_size=10,
+      hidden_units=[20,15,10],
       feature_columns=construct_feature_columns(training_examples),
       training_examples=training_examples,
       training_targets=training_targets,
@@ -167,17 +182,19 @@ print (feature_spec)
 export_input_fn = tf.estimator.export.build_parsing_serving_input_receiver_fn(feature_spec);
 servable_model_path = dnn_regressor.export_savedmodel(export_dir_base, export_input_fn, as_text=True);
 
+print(game_df.describe())
+
 random = game_df.sample()
 print(random)
 examples = preprocess_features(random)
 targets = preprocess_targets(random)
-
+ 
 predict_input_fn = tf.estimator.inputs.pandas_input_fn(x=examples,
                                                     y=targets,
                                                     batch_size=1,
                                                     shuffle=False,
                                                     num_epochs = 1)
-
+ 
 score_predict = dnn_regressor.predict(input_fn=predict_input_fn)
 print(list(score_predict))
 

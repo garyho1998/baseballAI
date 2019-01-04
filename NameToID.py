@@ -21,8 +21,7 @@ def f5(seq, idfun=None):
        if marker in seen: continue
        seen[marker] = 1
        result.append(item)
-   return result
-
+   return result
 def convert_nameToID_pitcher(cell):                  
     if cell ==" " or cell =="" or cell=="NaN" or cell==NaN:
         return NaN
@@ -62,7 +61,7 @@ folderpath = ROOT_DIR + "games/2016game"
 temp_dfs = []
 NotFoundList_pitcher = []
 NotFoundList_batter = []
-for i in range(3,29):
+for i in range(3,47):
     temp_dfs.append( pd.read_excel(folderpath + str(i) + ".xlsx") )
 game_df = pd.concat(temp_dfs)
 game_df = game_df.reset_index(drop=True)
@@ -92,3 +91,17 @@ writer.save()
 
 end = time.time()
 print((end-start)/60)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
